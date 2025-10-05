@@ -51,9 +51,9 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
     var showResult by remember { mutableStateOf(false) }
     var sortedWords by remember { mutableStateOf(emptyList<WordStats>()) }
 
-    // Функция для подсчета гласных букв в слове (приводится к нижнему регистру)
+    // Функция для подсчета гласных букв в слове
     fun countVowels(word: String): Int {
-        val vowels = setOf('a', 'e', 'i', 'o', 'u', 'y')
+        val vowels = setOf('a', 'e', 'i', 'o', 'u', 'y') // Английские гласные
         return word.lowercase().count { it in vowels }
     }
 
@@ -61,7 +61,7 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
     fun processText(inputText: String): List<WordStats> {
         if (inputText.isBlank()) return emptyList()
 
-        // Разбиваем текст на слова, убирая знаки препинания и вообще всё кроме букв
+        // Разбиваем текст на слова, убирая всё, что не буквы
         val words = inputText.split("\\s+".toRegex())
             .map { it.replace(Regex("[^\\p{L}\\p{M}]"), "") }
             .filter { it.isNotBlank() && it.any { char -> char.isLetter() } }
@@ -77,7 +77,7 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
                 totalLetters = totalLetters,
                 vowelRatio = vowelRatio
             )
-        }.sortedByDescending { it.vowelRatio } // Сортируем по убыванию относительного количества гласных
+        }.sortedBy { it.vowelRatio } // Сортируем по возрастанию отосительного количества гласных
     }
 
     Column(
@@ -102,7 +102,7 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
             maxLines = 5
         )
 
-        // Кнопка для обработки и показа результата
+        // Кнопка для обработки и вывода результата
         Button(
             onClick = {
                 sortedWords = processText(text)
@@ -116,7 +116,7 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
             Text("Показать результат")
         }
 
-        // Отображение результата
+        // Если пользователь жмёт на кнопку - выводим результат
         if (showResult) {
             if (sortedWords.isEmpty()) {
                 Card(
@@ -147,7 +147,7 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "Слова в порядке убывания относительного количества гласных:",
+                            text = "Слова в порядке возрастания относительного количества гласных:",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(bottom = 16.dp)
@@ -168,8 +168,8 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
                                 .padding(top = 16.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
+                            //в задании не было, но пусть будет
                             InfoChip("Всего слов: ${sortedWords.size}")
-
                         }
                     }
                 }
@@ -185,7 +185,7 @@ data class WordStats(
     val totalLetters: Int,
     val vowelRatio: Double
 )
-
+//красивая карточка для слова и статистики по нему
 @Composable
 fun WordItem(wordStats: WordStats, position: Int, modifier: Modifier = Modifier) {
     Card(
