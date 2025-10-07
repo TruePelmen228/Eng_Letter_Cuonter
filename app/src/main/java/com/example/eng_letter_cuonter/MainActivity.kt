@@ -50,6 +50,10 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
     var text by remember { mutableStateOf("") }
     var showResult by remember { mutableStateOf(false) }
     var sortedWords by remember { mutableStateOf(emptyList<WordStats>()) }
+    var isFirstInput by remember { mutableStateOf(true) } // Флаг для отслеживания первого ввода
+
+    // Предопределенная строка
+    val predefinedText = "Type here some text..."
 
     // Функция для подсчета гласных букв в слове
     fun countVowels(word: String): Int {
@@ -77,7 +81,7 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
                 totalLetters = totalLetters,
                 vowelRatio = vowelRatio
             )
-        }.sortedBy { it.vowelRatio } // Сортируем по возрастанию отосительного количества гласных
+        }.sortedBy { it.vowelRatio } // Сортируем по возрастанию относительного количества гласных
     }
 
     Column(
@@ -88,9 +92,15 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
     ) {
         // Поле ввода текста
         OutlinedTextField(
-            value = text,
+            value = if (isFirstInput) predefinedText else text,
             onValueChange = {
-                text = it
+                if (isFirstInput) {
+                    // При первом вводе очищаем поле и устанавливаем введенный текст
+                    text = " "
+                    isFirstInput = false
+                } else {
+                    text = it
+                }
                 showResult = false
             },
             label = { Text("Введите текст") },
@@ -105,13 +115,15 @@ fun LetterCounterScreen(modifier: Modifier = Modifier) {
         // Кнопка для обработки и вывода результата
         Button(
             onClick = {
-                sortedWords = processText(text)
+                // Используем актуальный текст (не предопределенный)
+                val currentText = if (isFirstInput) predefinedText else text
+                sortedWords = processText(currentText)
                 showResult = true
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            enabled = text.isNotEmpty()
+            enabled = (if (isFirstInput) predefinedText else text).isNotEmpty()
         ) {
             Text("Показать результат")
         }
@@ -185,6 +197,7 @@ data class WordStats(
     val totalLetters: Int,
     val vowelRatio: Double
 )
+
 //красивая карточка для слова и статистики по нему
 @Composable
 fun WordItem(wordStats: WordStats, position: Int, modifier: Modifier = Modifier) {
